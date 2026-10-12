@@ -11,7 +11,7 @@ en de sectie verschijnt vanzelf (zonder lijst blijft hij weg).
   "recensies": [{"citaat": "...", "naam": "...", "functie": "...", "bedrijf": "..."}]
   "faq": [{"vraag": "...", "antwoord": "..."}]
 """
-import html, json, shutil, sys, re, datetime, hashlib
+import html, json, shutil, sys, re, datetime, hashlib, urllib.request, urllib.error
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -151,6 +151,116 @@ def aanvullen(t):
 
 # ---------- onderdelen ----------
 
+# ---------- thumbnails ----------
+
+def _webp_maat(b):
+    """Breedte en hoogte uit de kop van een webp-bestand (geen extra programma's nodig)."""
+    if b[:4] != b"RIFF" or b[8:12] != b"WEBP":
+        return 0, 0
+    soort = b[12:16]
+    if soort == b"VP8 ":
+        return int.from_bytes(b[26:28], "little") & 0x3FFF, int.from_bytes(b[28:30], "little") & 0x3FFF
+    if soort == b"VP8L":
+        x = int.from_bytes(b[21:25], "little")
+        return (x & 0x3FFF) + 1, ((x >> 14) & 0x3FFF) + 1
+    if soort == b"VP8X":
+        return int.from_bytes(b[24:27], "little") + 1, int.from_bytes(b[27:30], "little") + 1
+    return 0, 0
+
+def _jpeg_maat(b):
+    i = 2
+    while i + 9 < len(b) and b[:2] == b"\xff\xd8":
+        if b[i] != 0xFF:
+            i += 1
+            continue
+        m = b[i + 1]
+        if m in (0xC0, 0xC1, 0xC2):
+            return int.from_bytes(b[i + 7:i + 9], "big"), int.from_bytes(b[i + 5:i + 7], "big")
+        i += 2 + int.from_bytes(b[i + 2:i + 4], "big")
+    return 0, 0
+
+def _haal(url):
+    r = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(r, timeout=8) as f:
+            return f.read()
+    except urllib.error.HTTPError:
+        return b""   # bestaat niet (YouTube geeft dan 404)
+
+_THUMBS = {}
+
+def thumb(yid):
+    """Beste YouTube-still voor een video: maxres (webp), anders sd, anders hq.
+    Wordt tijdens het bouwen bepaald. Lukt dat niet (geen netwerk), dan geven we maxres terug
+    met een lijst terugvallers die main.js in de browser probeert."""
+    if yid in _THUMBS:
+        return _THUMBS[yid]
+    basis = "https://i.ytimg.com/"
+    max_url, sd_url, hq_url = (f"{basis}vi_webp/{yid}/maxresdefault.webp", f"{basis}vi/{yid}/sddefault.jpg", f"{basis}vi/{yid}/hqdefault.jpg")
+    try:
+        w, h = _webp_maat(_haal(max_url))
+        if w > 120:
+            res = {"url": max_url, "soort": "max", "w": w, "h": h, "terug": ""}
+        else:
+            w, h = _jpeg_maat(_haal(sd_url))
+            res = ({"url": sd_url, "soort": "sd", "w": w, "h": h, "terug": ""} if w > 120
+                   else {"url": hq_url, "soort": "hq", "w": 480, "h": 360, "terug": ""})
+    except Exception:
+        res = {"url": f"{basis}vi/{yid}/maxresdefault.jpg", "soort": "onbekend", "w": 1280, "h": 720, "terug": f"{sd_url} {hq_url}"}
+    _THUMBS[yid] = res
+    return res
+
+STILL_UIT = {}      # bronbestand -> bestandsnaam in dist/img/stills/ (gevuld door verwerk_stills)
+STILL_MATEN = {}    # bestandsnaam in dist -> (breedte, hoogte)
+WAARSCHUWINGEN = []
+
+def verwerk_stills():
+    """Eigen stills (veld "still" per video, bestanden in src/img/stills/): max. 1600 px breed, webp kwaliteit 82.
+    Zonder Pillow (pip3 install pillow) gebruiken we het bronbestand ongewijzigd en melden dat."""
+    doel = OUT / "img" / "stills"
+    if doel.exists():
+        shutil.rmtree(doel)   # de ruwe bronbestanden horen niet in de gepubliceerde site
+    gebruikt = sorted({v["still"] for v in S["videos"] if v.get("still")})
+    if not gebruikt:
+        return
+    doel.mkdir(parents=True)
+    try:
+        from PIL import Image, ImageOps
+    except ImportError:
+        Image = None
+    for naam in gebruikt:
+        bron = ROOT / "src/img/stills" / naam
+        if not bron.is_file():
+            WAARSCHUWINGEN.append(f"video-still '{naam}' staat niet in src/img/stills/")
+            continue
+        if Image:
+            im = ImageOps.exif_transpose(Image.open(bron)).convert("RGB")
+            if im.width > 1600:
+                im = im.resize((1600, round(im.height * 1600 / im.width)), Image.LANCZOS)
+            uit = Path(naam).stem + ".webp"
+            im.save(doel / uit, "WEBP", quality=82)
+            STILL_MATEN[uit] = im.size
+        else:
+            uit = naam
+            shutil.copy(bron, doel / uit)
+            STILL_MATEN[uit] = _jpeg_maat(bron.read_bytes()) if uit.lower().endswith((".jpg", ".jpeg")) else (1280, 720)
+            WAARSCHUWINGEN.append("Pillow ontbreekt: eigen stills zijn niet verkleind of omgezet naar webp (pip3 install pillow)")
+        STILL_UIT[naam] = uit
+
+def still_van(v):
+    """Pad van de eigen still (veld "still" in site.json) of None."""
+    return f"stills/{STILL_UIT[v['still']]}" if v.get("still") in STILL_UIT else None
+
+def beeld_img(v, eigen=None):
+    """<img> voor een video: eigen still, anders de beste YouTube-thumbnail."""
+    eigen = eigen or still_van(v)
+    if eigen:
+        w, h = STILL_MATEN.get(Path(eigen).name, (1280, 720)) if eigen.startswith("stills/") else (1280, 720)
+        return f'<img src="{IMG}{e(eigen)}" alt="" loading="lazy" decoding="async" width="{w}" height="{h}">'
+    t = thumb(v["youtube"])
+    terug = f' data-fallback="{t["terug"]}"' if t["terug"] else ""
+    return f'<img src="{t["url"]}"{terug} alt="" loading="lazy" decoding="async" width="{t["w"]}" height="{t["h"]}">'
+
 def tegel(v, met_tekst):
     titel = e(v["titel"])
     if v.get("youtube") and PREVIEW:
@@ -159,7 +269,7 @@ def tegel(v, met_tekst):
                  f'<span class="speel"></span><span>Bekijk op YouTube</span></a>')
     elif v.get("youtube"):
         yid = e(v["youtube"])
-        beeld = (f'<img src="https://i.ytimg.com/vi/{yid}/hqdefault.jpg" alt="" loading="lazy" width="480" height="360">'
+        beeld = (f'{beeld_img(v)}'
                  f'<button type="button" data-yt="{yid}" aria-label="Speel video af: {titel}"><span class="speel"></span></button>')
     else:
         beeld = '<div class="leeg"><span>Video volgt</span></div>'
@@ -246,11 +356,7 @@ def case_beeld(v, foto, titel):
     if PREVIEW:
         return (f'<div class="beeld case-video"><a class="leeg yt-link" href="https://www.youtube.com/watch?v={yid}" target="_blank" rel="noopener">'
                 f'<span class="speel"></span><span>Bekijk op YouTube</span></a></div>')
-    if foto:
-        plaatje = f'<img src="{IMG}{e(foto)}" alt="" loading="lazy" width="1280" height="720">'
-    else:  # YouTube-still; main.js valt terug op hqdefault als er geen maxresdefault is
-        plaatje = (f'<img src="https://i.ytimg.com/vi/{yid}/maxresdefault.jpg" data-fallback="https://i.ytimg.com/vi/{yid}/hqdefault.jpg" '
-                   f'alt="" loading="lazy" width="1280" height="720">')
+    plaatje = beeld_img(v, foto)
     return (f'<div class="beeld case-video">{plaatje}'
             f'<button type="button" data-yt="{yid}" aria-label="Speel video af: {e(titel)}"><span class="speel"></span></button>{tc}</div>')
 
@@ -636,6 +742,7 @@ def main():
         shutil.rmtree(OUT)
     OUT.mkdir()
     shutil.copytree(ROOT / "src/img", OUT / "img")
+    verwerk_stills()
     paginas = {"index": home(), "videos": videos(), "contact": contact(),
                "agent": agent(), "privacy": privacy(), "terms": terms(), "404": niet_gevonden()}
     for naam, inhoud in paginas.items():
@@ -662,9 +769,17 @@ def main():
             open_punten.add(f"{naam}: Web3Forms access key ontbreekt in site.json")
         if 'class="leeg"' in inhoud:
             open_punten.add(f"{naam}: nog video's zonder YouTube-link")
+    for w in sorted(set(WAARSCHUWINGEN)):
+        open_punten.add(f"stills: {w}")
     for c in S.get("cases", []):
         if not video(c.get("video", "")):
             open_punten.add(f"index: case '{c.get('video')}' hoort bij geen video in site.json en wordt niet getoond")
+    if not PREVIEW:
+        for v in S["videos"]:
+            if v.get("youtube") and not v.get("still"):
+                tt = thumb(v["youtube"])
+                if tt["soort"] != "max":
+                    print(f"  thumbnail: {v['titel']} gebruikt {tt['soort']}")
     print(f"Gebouwd in {OUT.name}/ ({len(paginas)} pagina's)")
     if open_punten:
         print("Nog open:")

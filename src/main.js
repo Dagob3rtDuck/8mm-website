@@ -121,11 +121,17 @@
   }
   document.querySelectorAll('[data-yt]').forEach(koppelVideo);
 
-  // YouTube heeft niet van elke video een maxresdefault-still: val dan terug op hqdefault
+  // Noodgeval: kon build.py de beste still niet bepalen, dan staat er maxresdefault met een lijst terugvallers
+  // (data-fallback). Een ontbrekende maxres geeft YouTube terug als grijs plaatje van 120x90 of als fout.
   function stillFallback(img) {
-    var terug = img.getAttribute('data-fallback');
-    if (!terug) return;
-    var wissel = function () { img.removeAttribute('data-fallback'); img.src = terug; };
+    var rest = (img.getAttribute('data-fallback') || '').split(' ').filter(Boolean);
+    if (!rest.length) return;
+    var wissel = function () {
+      var volgende = rest.shift();
+      if (!volgende) { img.removeAttribute('data-fallback'); return; }
+      img.src = volgende;
+      img.setAttribute('data-fallback', rest.join(' '));
+    };
     img.addEventListener('error', wissel);
     img.addEventListener('load', function () { if (img.naturalWidth && img.naturalWidth <= 120) wissel(); });
     if (img.complete && (!img.naturalWidth || img.naturalWidth <= 120)) wissel();
