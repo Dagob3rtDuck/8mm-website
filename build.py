@@ -60,6 +60,8 @@ def pagina(naam, titel, beschrijving, inhoud, actief=None, lang="nl", extra_ld="
                         "addressLocality": "Harderwijk", "addressCountry": "NL"},
             "sameAs": [f"https://www.instagram.com/{S['instagram']}/"] + ([S["youtube_kanaal"]] if S.get("youtube_kanaal") else [])}, ensure_ascii=False) + "</script>"
     ld += extra_ld
+    google_meta = (f'<meta name="google-site-verification" content="{e(S["google_verificatie"])}">\n'
+                   if S.get("google_verificatie") else "")
     return f"""<!doctype html>
 <html lang="{lang}">
 <head>
@@ -67,7 +69,7 @@ def pagina(naam, titel, beschrijving, inhoud, actief=None, lang="nl", extra_ld="
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{e(titel)}</title>
 <meta name="description" content="{e(beschrijving)}">
-<link rel="canonical" href="{canon}">
+{google_meta}<link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(titel)}">
 <meta property="og:description" content="{e(beschrijving)}">
 <meta property="og:image" content="{S['domein']}/img/og.jpg">
