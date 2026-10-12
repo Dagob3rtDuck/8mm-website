@@ -221,10 +221,10 @@ def diensten():
         aantal = sum(1 for v in S["videos"] if v.get("categorie") == d.get("categorie"))
         if aantal:
             doel = f'{link("videos")}#{d["categorie"]}'
-            actie = f'Bekijk {aantal} video{"" if aantal == 1 else "&rsquo;s"} {PIJL}'
+            actie = f'<span class="alles">Bekijk </span>{aantal}<span class="alles"> video{"" if aantal == 1 else "&rsquo;s"}</span> {PIJL}'
         else:
-            doel, actie = link("contact"), f"Vraag ernaar {PIJL}"
-        rijen += (f'<li><a class="dienst" href="{doel}" style="--kleur:{(categorie(d.get("categorie")) or {}).get("kleur", "#888")}">'
+            doel, actie = link("contact"), f'<span class="alles">Vraag ernaar </span>{PIJL}'
+        rijen += (f'<li><a class="dienst" href="{doel}" aria-label="{e(d["titel"])}: {html.unescape(re.sub("<[^>]+>", "", actie.replace(PIJL, "")).strip())}" style="--kleur:{(categorie(d.get("categorie")) or {}).get("kleur", "#888")}">'
                   f'<h3><span class="stip" aria-hidden="true"></span>{e(d["titel"])}</h3><p>{e(d["tekst"])}</p>'
                   f'<span class="tekstlink">{actie}</span></a></li>')
     return f"""<section class="diensten-sectie" id="diensten">

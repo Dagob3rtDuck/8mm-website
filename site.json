@@ -151,27 +151,27 @@
   "diensten": [
     {
       "titel": "Bedrijfsfilm",
-      "tekst": "Een film die laat zien wie je bent en waar je voor staat. Inzetbaar op je website, in presentaties, op beurzen en op social media.",
+      "tekst": "Laat zien wie je bent, voor je website, beurzen en social media.",
       "categorie": "bedrijfsfilm"
     },
     {
       "titel": "Vacaturevideo",
-      "tekst": "Geef kandidaten een eerlijk beeld van de werkvloer, met je eigen mensen in de hoofdrol. Zo spreek je sollicitanten aan die echt bij je passen.",
+      "tekst": "Je eigen mensen en werkvloer in beeld, zodat de juiste kandidaten reageren.",
       "categorie": "vacaturevideo"
     },
     {
-      "titel": "Aftermovie en evenementen",
-      "tekst": "We leggen de sfeer van je festival, opening of evenement vast. Een sterke aftermovie houdt de beleving levend en is de beste promotie voor de volgende editie.",
+      "titel": "Evenementen",
+      "tekst": "De sfeer van je evenement vastgelegd, en meteen promotie voor de volgende editie.",
       "categorie": "evenement"
     },
     {
       "titel": "Projectvastlegging",
-      "tekst": "Bouwprojecten en gebiedsontwikkeling vastgelegd over maanden of jaren, op de grond en vanuit de lucht. Waardevol voor communicatie, verantwoording en archief.",
+      "tekst": "Bouw en gebiedsontwikkeling in beeld, op de grond en vanuit de lucht.",
       "categorie": "projectvastlegging"
     },
     {
-      "titel": "Livestream en meercamera",
-      "tekst": "Registratie met meerdere camera's of een livestream, zodat je publiek niets mist, ook als het er niet bij kan zijn.",
+      "titel": "Meercamera",
+      "tekst": "Registratie met meerdere camera's of live online, zodat niemand iets mist.",
       "categorie": "meercamera"
     }
   ],
