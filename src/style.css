@@ -25,7 +25,9 @@ img { max-width: 100%; display: block; height: auto; }
 .wrap { width: 100%; max-width: var(--breed); margin-inline: auto; padding-inline: var(--rand); }
 h1, h2, h3 { font-family: var(--f); font-weight: 700; font-stretch: 112%; letter-spacing: -.02em; line-height: 1.02; margin: 0; text-wrap: balance; }
 h1 { font-size: clamp(2.8rem, 7.5vw, 6.8rem); letter-spacing: -.035em; }
-h2 { font-size: clamp(2rem, 4.2vw, 3.6rem); letter-spacing: -.03em; }
+h2, .kop-blok h1 { font-size: clamp(2rem, 4.2vw, 3.6rem); letter-spacing: -.03em; }
+.slogan { font: 700 clamp(2.8rem, 7.5vw, 6.8rem)/1.02 var(--f); font-stretch: 112%; letter-spacing: -.035em; margin: 0; text-wrap: balance; }
+.hero-kop .hero-h1 { font: 500 .78rem/1 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--grijs); margin-bottom: 1.2rem; }
 h3 { font-size: 1.15rem; letter-spacing: -.01em; }
 p { margin: 0; }
 .label { font: 500 .72rem/1 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--grijs); }
@@ -293,7 +295,7 @@ footer a:hover { color: var(--lamp); }
 .doek img { animation: zak-in 2.4s var(--ease) both; }
 .doek-meta { animation: omhoog .8s var(--ease) .9s both; }
 .rec::before { animation: knipper 1.6s ease-in-out infinite; }
-.hero-tekst h1 { animation: omhoog 1s var(--ease) .35s both; }
+.hero-kop { animation: omhoog 1s var(--ease) .35s both; }
 .hero-tekst .lead { animation: omhoog 1s var(--ease) .55s both; }
 .hero-tekst .knoppen { animation: omhoog 1s var(--ease) .7s both; }
 
@@ -339,7 +341,7 @@ nav a:hover::after, nav a[aria-current="page"]::after { transform: scaleX(1); tr
 .verschijn { opacity: 1; transform: none; transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: var(--vertraging, 0s); }
 
 @media (prefers-reduced-motion: reduce) {
-  .doek, .doek img, .doek-meta, .hero-tekst h1, .hero-tekst .lead, .hero-tekst .knoppen, .rec::before, .doek::before { animation: none !important; }
+  .doek, .doek img, .doek-meta, .hero-kop, .hero-tekst .lead, .hero-tekst .knoppen, .rec::before, .doek::before { animation: none !important; }
   .wacht { opacity: 1; transform: none; }
 }
 

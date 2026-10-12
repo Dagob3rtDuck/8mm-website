@@ -11,7 +11,7 @@ en de sectie verschijnt vanzelf (zonder lijst blijft hij weg).
   "recensies": [{"citaat": "...", "naam": "...", "functie": "...", "bedrijf": "..."}]
   "faq": [{"vraag": "...", "antwoord": "..."}]
 """
-import html, json, shutil, sys, re
+import html, json, shutil, sys, re, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -38,7 +38,7 @@ PIJL = '<span class="pijl" aria-hidden="true">&rarr;</span>'
 def link_live(naam):
     return "/" if naam == "" else f"/{naam}/"
 
-def pagina(naam, titel, beschrijving, inhoud, actief=None, lang="nl"):
+def pagina(naam, titel, beschrijving, inhoud, actief=None, lang="nl", extra_ld=""):
     canon = S["domein"] + link_live(naam)
     huidig = ' aria-current="page"'
     nav = "".join(
@@ -49,11 +49,13 @@ def pagina(naam, titel, beschrijving, inhoud, actief=None, lang="nl"):
     ld = ""
     if naam == "":
         ld = '<script type="application/ld+json">' + json.dumps({
-            "@context": "https://schema.org", "@type": "LocalBusiness", "name": S["bedrijf"],
+            "@context": "https://schema.org", "@type": "ProfessionalService", "name": S["bedrijf"],
+            "areaServed": {"@type": "Country", "name": "Nederland"},
             "url": S["domein"], "email": S["email"], "image": S["domein"] + "/img/og.jpg",
             "address": {"@type": "PostalAddress", "streetAddress": S["adres"], "postalCode": S["postcode_plaats"][:7],
                         "addressLocality": "Harderwijk", "addressCountry": "NL"},
-            "sameAs": [f"https://www.instagram.com/{S['instagram']}/"]}, ensure_ascii=False) + "</script>"
+            "sameAs": [f"https://www.instagram.com/{S['instagram']}/"] + ([S["youtube_kanaal"]] if S.get("youtube_kanaal") else [])}, ensure_ascii=False) + "</script>"
+    ld += extra_ld
     return f"""<!doctype html>
 <html lang="{lang}">
 <head>
@@ -324,7 +326,7 @@ def recensies():
   </div>
 </section>"""
 
-def contactblok():
+def contactblok(kop="h2"):
     preview_attr = " data-preview" if PREVIEW else ""
     action = "" if PREVIEW else ' action="https://api.web3forms.com/submit" method="POST"'
     key = S.get("web3forms_key") or "WEB3FORMS_KEY_ONTBREEKT"
@@ -332,7 +334,7 @@ def contactblok():
   <div class="contact-links">
     <div class="kop-blok">
       <span class="label">Contact</span>
-      <h2>Vertel wat je wilt maken.</h2>
+      <{kop}>Vertel wat je wilt maken.</{kop}>
       <p class="lead">Een bedrijfsfilm, vacaturevideo, aftermovie of livestream? Vertel kort wat je in gedachten hebt, dan nemen we snel contact met je op.</p>
     </div>
     <dl class="gegevens">
@@ -370,8 +372,8 @@ def contactblok():
 # ---------- pagina's ----------
 
 def home():
-    return pagina("", "8MM Film Productions | Videoproductie Harderwijk",
-        "Videoproductie uit Harderwijk sinds 2017. Bedrijfsfilms, vacaturevideo's, aftermovies, projectvastleggingen en livestreams.",
+    return pagina("", "Videoproductie Harderwijk | 8MM Film Productions",
+        "Videoproductie in Harderwijk sinds 2017: bedrijfsfilms, vacaturevideo's, aftermovies, projectvastleggingen en livestreams voor bedrijven en evenementen.",
         f"""<section class="hero">
   <div class="wrap">
     <div class="doek">
@@ -379,7 +381,10 @@ def home():
       <div class="doek-meta"><span class="rec">Harderwijk</span><span>Sinds 2017</span></div>
     </div>
     <div class="hero-tekst">
-      <h1>{e(S['slogan'])}</h1>
+      <div class="hero-kop">
+        <h1 class="hero-h1">Videoproductie in Harderwijk</h1>
+        <p class="slogan">{e(S['slogan'])}</p>
+      </div>
       <div class="rechts">
         <p class="lead">{e(S['kop'])} Van concept tot eindmontage nemen we het complete traject uit handen, voor bedrijven, organisaties en evenementen.</p>
         <div class="knoppen">
@@ -406,13 +411,29 @@ def home():
 {faq()}
 <section class="contact-sectie" id="contact"><div class="wrap">{contactblok()}</div></section>""", actief="")
 
+def video_ld():
+    items = []
+    for v in S["videos"]:
+        if not v.get("youtube"):
+            continue
+        yid = v["youtube"]
+        o = {"@context": "https://schema.org", "@type": "VideoObject", "name": v["titel"],
+             "description": v.get("tekst") or f'{v["titel"]}, een video van {S["bedrijf"]}.',
+             "thumbnailUrl": f"https://i.ytimg.com/vi/{yid}/hqdefault.jpg",
+             "embedUrl": f"https://www.youtube-nocookie.com/embed/{yid}",
+             "contentUrl": f"https://www.youtube.com/watch?v={yid}"}
+        if v.get("datum"):  # uploaddatum, JJJJ-MM-DD. Google vraagt erom; zonder datum laten we het veld weg
+            o["uploadDate"] = v["datum"]
+        items.append('<script type="application/ld+json">' + json.dumps(o, ensure_ascii=False) + "</script>")
+    return "".join(items)
+
 def videos():
     knoppen = '<button type="button" class="filter" data-filter="" aria-pressed="true">Alles</button>' + "".join(
         f'<button type="button" class="filter" data-filter="{c["key"]}" aria-pressed="false" style="--kleur:{c["kleur"]}">'
         f'<span class="stip" aria-hidden="true"></span>{e(c["naam"])}</button>'
         for c in S.get("categorieen", []) if any(v.get("categorie") == c["key"] for v in S["videos"]))
-    return pagina("videos", "Video's | 8MM Film Productions",
-        "Bedrijfsfilms, vacaturevideo's, aftermovies en meercamera-opnames van 8MM Film Productions uit Harderwijk.",
+    return pagina("videos", "Video's en projecten | 8MM Film Productions",
+        "Bekijk onze bedrijfsfilms, vacaturevideo's, aftermovies en meercamera-opnames. Videoproductie uit Harderwijk voor bedrijven en evenementen.",
         f"""<section>
   <div class="wrap">
     <div class="sectie-kop"><div><span class="label">Projecten</span><h1>Video's</h1>
@@ -420,12 +441,12 @@ def videos():
     <div class="filters" role="group" aria-label="Filter op soort video">{knoppen}</div>
     {videogrid(True)}
   </div>
-</section>""", actief="videos")
+</section>""", actief="videos", extra_ld=video_ld())
 
 def contact():
-    return pagina("contact", "Contact | 8MM Film Productions",
-        "Neem contact op met 8MM Film Productions in Harderwijk voor je volgende videoproductie.",
-        f'<section><div class="wrap">{contactblok()}</div></section>' + faq(), actief="contact")
+    return pagina("contact", "Contact en offerte | 8MM Film Productions",
+        "Een video laten maken in Harderwijk of omgeving? Vertel wat je wilt maken, dan nemen we snel contact met je op voor een gesprek en offerte.",
+        f'<section><div class="wrap">{contactblok("h1")}</div></section>' + faq(), actief="contact")
 
 TAAL = lambda: '<div class="taal"><a href="#nl">Nederlands</a><a href="#en">English</a></div>'
 SCOPES_NL = ('<ul><li><b>Gmail (alleen lezen)</b>: e-mails en bijlagen zoeken en lezen. De app kan geen e-mails versturen, concepten maken, labelen, wijzigen of verwijderen.</li>'
@@ -600,7 +621,8 @@ def main():
         (OUT / "CNAME").write_text("www.8mmfilmproductions.nl\n")
         (OUT / ".nojekyll").write_text("")
         (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {S['domein']}/sitemap.xml\n")
-        urls = "".join(f"<url><loc>{S['domein']}{p}</loc></url>" for p in [link_live(n) for n in ("", "videos", "contact", "agent", "privacy", "terms")])
+        vandaag = datetime.date.today().isoformat()
+        urls = "".join(f"<url><loc>{S['domein']}{p}</loc><lastmod>{vandaag}</lastmod></url>" for p in [link_live(n) for n in ("", "videos", "contact", "agent", "privacy", "terms")])
         (OUT / "sitemap.xml").write_text(
             f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n')
     # controle: open punten
