@@ -11,7 +11,7 @@
   // Zachte onthulling bij scrollen. Alleen voor wat bij het laden nog onder de vouw staat,
   // zodat de pagina zonder JavaScript of animatie altijd compleet zichtbaar is.
   if (!rustig && 'IntersectionObserver' in window) {
-    var doelen = document.querySelectorAll('.sectie-kop, .tegel, .over-tekst, .over img, .case-beeld, .case-tekst, .diensten li, .faq, .recensie, .logos div, .contact-links, form, .doc h2, .app-kaart');
+    var doelen = document.querySelectorAll('.sectie-kop, .tegel, .over-tekst, .over img, .case-tabs, .diensten li, .faq, .recensie, .logos div, .contact-links, form, .doc h2, .app-kaart');
     var io = new IntersectionObserver(function (items) {
       items.forEach(function (it) {
         if (!it.isIntersecting) return;
@@ -70,7 +70,7 @@
   }
 
   // Video's: pas laden na klik (sneller en privacyvriendelijk, geen YouTube-cookies vooraf)
-  document.querySelectorAll('[data-yt]').forEach(function (btn) {
+  function koppelVideo(btn) {
     btn.addEventListener('click', function () {
       var id = btn.getAttribute('data-yt');
       var box = btn.parentElement;
@@ -82,7 +82,68 @@
       box.innerHTML = '';
       box.appendChild(f);
     });
-  });
+  }
+  document.querySelectorAll('[data-yt]').forEach(koppelVideo);
+
+  // YouTube heeft niet van elke video een maxresdefault-still: val dan terug op hqdefault
+  function stillFallback(img) {
+    var terug = img.getAttribute('data-fallback');
+    if (!terug) return;
+    var wissel = function () { img.removeAttribute('data-fallback'); img.src = terug; };
+    img.addEventListener('error', wissel);
+    img.addEventListener('load', function () { if (img.naturalWidth && img.naturalWidth <= 120) wissel(); });
+    if (img.complete && (!img.naturalWidth || img.naturalWidth <= 120)) wissel();
+  }
+  document.querySelectorAll('img[data-fallback]').forEach(stillFallback);
+
+  // Uitgelichte projecten: tabs. Zonder JavaScript staan alle projecten gewoon onder elkaar.
+  var cases = document.querySelector('.cases');
+  if (cases) {
+    var tabs = Array.prototype.slice.call(cases.querySelectorAll('[role=tab]'));
+    var lijst = cases.querySelector('[role=tablist]');
+    var panelen = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
+    if (tabs.length && lijst) {
+      cases.classList.add('js-cases');
+      lijst.hidden = false;
+      panelen.forEach(function (p) {
+        p.setAttribute('role', 'tabpanel');
+        var b = p.querySelector('.beeld');
+        p._beeld = b ? b.innerHTML : '';
+      });
+      // een video die nog speelt als je van tab wisselt, zetten we terug naar de still
+      var stopVideo = function (p) {
+        var b = p.querySelector('.beeld');
+        if (!b || !b.querySelector('iframe')) return;
+        b.innerHTML = p._beeld;
+        var k = b.querySelector('[data-yt]'); if (k) koppelVideo(k);
+        var im = b.querySelector('img[data-fallback]'); if (im) stillFallback(im);
+      };
+      var kies = function (i, focus) {
+        tabs.forEach(function (t, j) { t.setAttribute('aria-selected', j === i ? 'true' : 'false'); t.tabIndex = j === i ? 0 : -1; });
+        panelen.forEach(function (p, j) {
+          if (j === i) {
+            if (!p.hidden) return;
+            p.hidden = false; p.classList.remove('wissel');
+            if (!rustig) { void p.offsetWidth; p.classList.add('wissel'); }
+          } else if (!p.hidden) { stopVideo(p); p.hidden = true; }
+        });
+        if (focus) { tabs[i].focus(); tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: rustig ? 'auto' : 'smooth' }); }
+      };
+      tabs.forEach(function (t, i) {
+        t.addEventListener('click', function () { kies(i, false); });
+        t.addEventListener('keydown', function (ev) {
+          var n = tabs.length, nieuw = null;
+          if (ev.key === 'ArrowRight') nieuw = (i + 1) % n;
+          else if (ev.key === 'ArrowLeft') nieuw = (i - 1 + n) % n;
+          else if (ev.key === 'Home') nieuw = 0;
+          else if (ev.key === 'End') nieuw = n - 1;
+          if (nieuw === null) return;
+          ev.preventDefault(); kies(nieuw, true);
+        });
+      });
+      kies(0, false);
+    }
+  }
 
   // Mailadres kopiëren
   document.querySelectorAll('[data-kopieer]').forEach(function (b) {

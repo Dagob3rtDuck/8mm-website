@@ -174,16 +174,134 @@
       "categorie": "meercamera"
     }
   ],
-  "case": {
-    "video": "Waterfront Harderwijk",
-    "foto": "case-waterfront.jpg",
-    "titel": "Tien jaar Waterfront in één film",
-    "vraag": "Na tien jaar ontwikkeling van het Waterfront in Harderwijk brachten Boskalis, Synchroon, Koopmans Bouwgroep en Gemeente Harderwijk een boek uit. Bij de presentatie hoorde een film die die hele periode in beeld brengt.",
-    "aanpak": "Tien jaar lang waren we samen met JTAV de vaste camera op het Waterfront. We volgden het project vanaf de eerste graafwerkzaamheden, door de bouw heen, tot en met het emissieloze werk. Op de grond en vanuit de lucht, met gecertificeerde dronevluchten. Zo ontstond een archief van een decennium gebiedsontwikkeling.",
-    "resultaat": "Uit dat archief monteerden we één eindfilm van bijna vijf minuten: tien jaar Waterfront in één verhaal, vertoond bij de presentatie van het boek. Voor ons een van de grootste en mooiste projecten tot nu toe.",
-    "citaat": "",
-    "citaat_naam": ""
-  },
+  "cases": [
+    {
+      "video": "Waterfront Harderwijk",
+      "tab": "Waterfront",
+      "titel": "Tien jaar Waterfront in één film",
+      "intro": "Na tien jaar ontwikkeling van het Waterfront in Harderwijk brachten Boskalis, Synchroon, Koopmans Bouwgroep en Gemeente Harderwijk een boek uit. Bij de presentatie hoorde een film die die hele periode in beeld brengt.",
+      "stappen": [
+        {
+          "titel": "Tien jaar registratie",
+          "tekst": "Samen met JTAV volgden we het project vanaf de eerste graafwerkzaamheden, door de bouw heen, tot en met het emissieloze werk."
+        },
+        {
+          "titel": "Grond en lucht",
+          "tekst": "Naast camerawerk op de bouwplaats maakten we gecertificeerde dronevluchten."
+        },
+        {
+          "titel": "Van archief naar verhaal",
+          "tekst": "Uit tien jaar beeldmateriaal monteerden we één eindfilm van bijna vijf minuten."
+        },
+        {
+          "titel": "Première",
+          "tekst": "De film werd vertoond bij de presentatie van het Waterfront-boek."
+        }
+      ],
+      "ingezet": [
+        "Drone (gecertificeerd)",
+        "Samen met JTAV",
+        "10 jaar archief",
+        "Montage"
+      ],
+      "foto": "case-waterfront.jpg"
+    },
+    {
+      "video": "Techno at the Chapel",
+      "titel": "Een bijzondere kapel, vanuit elke hoek",
+      "intro": "Techno at the Chapel van Stichting Onkruid is een feest voor een kleine groep mensen op een hele bijzondere locatie. Technisch was het een grote productie. Daarom kozen we voor een registratie met meerdere camera's, zodat je op YouTube de sfeer van de avond van alle kanten meebeleeft.",
+      "stappen": [
+        {
+          "titel": "Plan",
+          "tekst": "Samen met Onkruid bepaald hoe we de set en de sfeer van de kapel het best vangen."
+        },
+        {
+          "titel": "Vier cameraposities",
+          "tekst": "Eén voor het overzicht, één op de DJ, één op het publiek en één van bovenaf, vanaf het dak van de kapel."
+        },
+        {
+          "titel": "Registratie",
+          "tekst": "De hele set opgenomen met alle vier de camera's tegelijk."
+        },
+        {
+          "titel": "Montage",
+          "tekst": "De vier beelden samengebracht tot één film die de avond van alle kanten laat zien."
+        },
+        {
+          "titel": "Online",
+          "tekst": "De sets staan op YouTube en worden goed bekeken."
+        }
+      ],
+      "ingezet": [
+        "4 camera's",
+        "Registratie",
+        "Multicam-montage",
+        "Serie op YouTube"
+      ]
+    },
+    {
+      "video": "Smash Catering",
+      "titel": "Smash Catering, op locatie",
+      "intro": "Smash Catering verzorgt catering voor bedrijven en komt daarvoor naar de locatie toe. Ze wilden een film die laat zien wie ze zijn en hoe ze werken, zodat een nieuwe opdrachtgever meteen ziet wat hij kan verwachten. Geen opsomming van diensten, maar beelden die het verhaal vertellen.",
+      "stappen": [
+        {
+          "titel": "Voorgesprek",
+          "tekst": "Samen bepaald wat Smash onderscheidt en wat een zakelijke klant moet zien om overtuigd te raken."
+        },
+        {
+          "titel": "Opnames op locatie",
+          "tekst": "We filmden Smash in actie, op de plek waar het gebeurt, met oog voor het team, het werk en het eten."
+        },
+        {
+          "titel": "Montage",
+          "tekst": "De beelden gemonteerd tot een vlotte film die de sfeer en de kwaliteit van Smash in één keer overbrengt."
+        },
+        {
+          "titel": "Oplevering",
+          "tekst": "Een film die Smash inzet op de website en in gesprekken met nieuwe klanten."
+        }
+      ],
+      "ingezet": [
+        "Voorgesprek",
+        "Opnames op locatie",
+        "Montage"
+      ]
+    },
+    {
+      "video": "Chalet Invest",
+      "titel": "Een lastig proces, helder uitgelegd",
+      "intro": "Chalet Invest wilde een ingewikkeld proces in één keer duidelijk maken voor hun klanten. Met animatie kun je precies laten zien wat er gebeurt, stap voor stap, zonder dat iemand afhaakt.",
+      "stappen": [
+        {
+          "titel": "Verhaal",
+          "tekst": "Het proces vertaald naar een helder verhaal met een logische opbouw."
+        },
+        {
+          "titel": "Storyboard",
+          "tekst": "Elke scène vooraf uitgetekend, zodat de opbouw klopt voordat we gingen animeren."
+        },
+        {
+          "titel": "Voice-over",
+          "tekst": "Een stem die de kijker door het verhaal leidt."
+        },
+        {
+          "titel": "Animatie",
+          "tekst": "De scènes tot leven gebracht in een strakke, duidelijke stijl."
+        },
+        {
+          "titel": "Ondertiteling",
+          "tekst": "Afgestemd op Chalet Invest, zodat de video ook zonder geluid werkt."
+        }
+      ],
+      "ingezet": [
+        "Verhaal",
+        "Storyboard",
+        "Voice-over",
+        "Animatie",
+        "Ondertiteling"
+      ]
+    }
+  ],
   "categorieen": [
     {
       "key": "bedrijfsfilm",

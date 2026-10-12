@@ -173,10 +173,17 @@ def tegel(v, met_tekst):
 def videogrid(met_tekst):
     if met_tekst:
         return '<div class="grid ruim">' + "".join(tegel(v, True) for v in S["videos"]) + "</div>"
-    # home: de uitgelichte case staat al apart, dus die niet nog eens in het grid
-    case_titel = (S.get("case") or {}).get("video")
-    lijst = [v for v in S["videos"] if v["titel"] != case_titel][:6]  # home toont er max. 6, de rest staat op /videos
-    return '<div class="grid drie">' + "".join(tegel(v, False) for v in lijst) + "</div>"
+    # home: video's die al als uitgelicht project staan, laten we hier weg. Max. 5 video's + een doorlinktegel = 3x2.
+    in_cases = {c.get("video") for c in S.get("cases", [])}
+    lijst = [v for v in S["videos"] if v["titel"] not in in_cases][:5]
+    return '<div class="grid drie">' + "".join(tegel(v, False) for v in lijst) + alle_tegel() + "</div>"
+
+def alle_tegel():
+    n = len(S["videos"])
+    return f"""<a class="tegel tegel-alle" href="{link('videos')}">
+  <div class="beeld"><div class="alle-inhoud"><span class="alle-getal">{n}</span><span class="label">video&rsquo;s</span></div></div>
+  <div class="tegel-info"><h3>Alle projecten</h3><span class="klant">Bekijk alle {n} video&rsquo;s {PIJL}</span></div>
+</a>"""
 
 def werkmethode():
     fotos = ["stap-kennismaking", "stap-productie", "stap-montage", "stap-oplevering"]
@@ -225,35 +232,57 @@ def diensten():
   </div>
 </section>"""
 
-def case():
-    c = S.get("case")
-    if not c:
+def case_beeld(v, foto, titel):
+    """Grote video in een uitgelicht project. Zelfde klik-om-te-laden als de videotegels."""
+    yid = e(v.get("youtube", ""))
+    tc = f'<span class="tijdcode">{e(v["duur"])}</span>' if v.get("duur") else ""
+    if not yid:
+        return '<div class="beeld case-video"><div class="leeg"><span>Video volgt</span></div></div>'
+    if PREVIEW:
+        return (f'<div class="beeld case-video"><a class="leeg yt-link" href="https://www.youtube.com/watch?v={yid}" target="_blank" rel="noopener">'
+                f'<span class="speel"></span><span>Bekijk op YouTube</span></a></div>')
+    if foto:
+        plaatje = f'<img src="{IMG}{e(foto)}" alt="" loading="lazy" width="1280" height="720">'
+    else:  # YouTube-still; main.js valt terug op hqdefault als er geen maxresdefault is
+        plaatje = (f'<img src="https://i.ytimg.com/vi/{yid}/maxresdefault.jpg" data-fallback="https://i.ytimg.com/vi/{yid}/hqdefault.jpg" '
+                   f'alt="" loading="lazy" width="1280" height="720">')
+    return (f'<div class="beeld case-video">{plaatje}'
+            f'<button type="button" data-yt="{yid}" aria-label="Speel video af: {e(titel)}"><span class="speel"></span></button>{tc}</div>')
+
+def cases():
+    items = [c for c in S.get("cases", []) if video(c.get("video", ""))]
+    if not items:
         return ""
-    v = video(c["video"]) or {}
-    def blok(kop, tekst, wat):
-        if tekst:
-            return f'<div><dt class="label">{kop}</dt><dd>{e(tekst)}</dd></div>'
-        return f'<div><dt class="label">{kop}</dt><dd>{aanvullen(wat)}</dd></div>' if PREVIEW else ""
-    citaat = ""
-    if c.get("citaat"):
-        citaat = f'<blockquote class="case-citaat">&ldquo;{e(c["citaat"])}&rdquo;<cite>{e(c.get("citaat_naam", ""))}</cite></blockquote>'
-    return f"""<section class="case-sectie" id="case">
+    tabs = panelen = ""
+    for i, c in enumerate(items):
+        v = video(c["video"])
+        sl = slug(c["video"])
+        cat = categorie(v.get("categorie"))
+        kleur = f' style="--kleur:{cat["kleur"]}"' if cat else ""
+        tabs += (f'<button type="button" role="tab" class="case-tab" id="tab-{sl}" aria-controls="case-{sl}" '
+                 f'aria-selected="{"true" if i == 0 else "false"}" tabindex="{0 if i == 0 else -1}"{kleur}>'
+                 f'<span class="tab-naam">{e(c.get("tab") or v["titel"])}</span>{label(v.get("categorie"), False)}</button>')
+        stappen = "".join(
+            f'<li><b>{e(s["titel"])}</b><span>{e(s.get("tekst", ""))}</span></li>'
+            for s in c.get("stappen", []) if s.get("titel"))
+        chips = "".join(f"<li>{e(x)}</li>" for x in c.get("ingezet", []) if x)
+        titel = c.get("titel") or v["titel"]
+        panelen += f"""<div class="case-paneel" id="case-{sl}" aria-labelledby="tab-{sl}">
+  {case_beeld(v, c.get("foto"), titel)}
+  <div class="case-tekst">
+    <h3 class="case-titel">{e(titel)}</h3>
+    {f'<p class="case-intro">{e(c["intro"])}</p>' if c.get("intro") else ""}
+    {f'<div class="case-blok"><span class="label">Zo pakten we het aan</span><ol class="case-stappen">{stappen}</ol></div>' if stappen else ""}
+    {f'<div class="case-blok"><span class="label">Ingezet</span><ul class="case-ingezet">{chips}</ul></div>' if chips else ""}
+  </div>
+</div>
+"""
+    return f"""<section class="cases-sectie" id="cases">
   <div class="wrap">
-    <div class="case">
-      <a class="case-beeld" href="{link('videos')}#{slug(c['video'])}">
-        <img src="{IMG}{c['foto']}" alt="Still uit de film {e(c['video'])}" loading="lazy" width="1080" height="456">
-        <span class="speel"></span><span class="tijdcode">{e(v.get('duur', ''))}</span>
-      </a>
-      <div class="case-tekst">
-        <span class="label">Uitgelicht project</span>
-        <h2>{e(c['titel'])}</h2>
-        <dl class="case-feiten">
-          {blok('De vraag', c.get('vraag'), 'wat wilde de klant precies')}
-          {blok('Onze aanpak', c.get('aanpak'), 'hoe pakten jullie het aan: draaidagen, drone, interviews, samenwerking met JTAV')}
-          {blok('Resultaat', c.get('resultaat'), 'wat leverde het op')}
-        </dl>
-        {citaat}
-      </div>
+    <div class="sectie-kop"><div><span class="label">Uitgelicht</span><h2>Zo pakken we het aan</h2></div></div>
+    <div class="cases">
+      <div class="case-tabs" role="tablist" aria-label="Uitgelichte projecten" hidden>{tabs}</div>
+      {panelen}
     </div>
   </div>
 </section>"""
@@ -370,7 +399,7 @@ def home():
     {videogrid(False)}
   </div>
 </section>
-{case()}
+{cases()}
 {diensten()}
 {werkmethode()}
 {recensies()}
@@ -583,6 +612,9 @@ def main():
             open_punten.add(f"{naam}: Web3Forms access key ontbreekt in site.json")
         if 'class="leeg"' in inhoud:
             open_punten.add(f"{naam}: nog video's zonder YouTube-link")
+    for c in S.get("cases", []):
+        if not video(c.get("video", "")):
+            open_punten.add(f"index: case '{c.get('video')}' hoort bij geen video in site.json en wordt niet getoond")
     print(f"Gebouwd in {OUT.name}/ ({len(paginas)} pagina's)")
     if open_punten:
         print("Nog open:")
