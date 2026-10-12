@@ -85,16 +85,33 @@
   }
 
   // Video's: pas laden na klik (sneller en privacyvriendelijk, geen YouTube-cookies vooraf)
+  // Zodra iemand een video aanwijst of aanraakt, bouwen we alvast de verbinding met YouTube op (sneller starten).
+  var verbonden = false;
+  function opwarmen() {
+    if (verbonden) return;
+    verbonden = true;
+    var l = document.createElement('link');
+    l.rel = 'preconnect'; l.href = 'https://www.youtube-nocookie.com';
+    document.head.appendChild(l);
+  }
   function koppelVideo(btn) {
+    ['pointerenter', 'touchstart', 'focus'].forEach(function (ev) { btn.addEventListener(ev, opwarmen, { once: true, passive: true }); });
     btn.addEventListener('click', function () {
       var id = btn.getAttribute('data-yt');
       var box = btn.parentElement;
+      opwarmen();
+      btn.disabled = true;
+      box.classList.add('laadt'); // de still blijft staan met een draaiend bolletje tot de speler er is
       var f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0';
+      f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
       f.title = btn.getAttribute('aria-label') || 'Video';
       f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
       f.allowFullscreen = true;
-      box.innerHTML = '';
+      f.addEventListener('load', function () {
+        f.classList.add('klaar');
+        box.classList.remove('laadt');
+        Array.prototype.forEach.call(box.querySelectorAll('button, .tijdcode'), function (x) { x.remove(); });
+      });
       box.appendChild(f);
     });
   }

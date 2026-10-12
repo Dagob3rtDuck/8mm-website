@@ -88,7 +88,7 @@
       "klant": "Chalet Invest",
       "tekst": "Animatievideo voor Chalet Invest.",
       "youtube": "dl2INok3TzI",
-      "categorie": "bedrijfsfilm",
+      "categorie": "animatie",
       "sub": "Animatievideo"
     }
   ],
@@ -328,6 +328,11 @@
       "key": "meercamera",
       "naam": "Meercamera",
       "kleur": "#e58fd0"
+    },
+    {
+      "key": "animatie",
+      "naam": "Animatie",
+      "kleur": "#a78bfa"
     }
   ]
 }
