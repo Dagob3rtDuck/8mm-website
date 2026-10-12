@@ -11,6 +11,10 @@
       var max = window.innerHeight * 0.4, x = window.scrollY * 0.18, af = max * x / (max + x);
       vlekken[0].style.transform = 'translate3d(0,' + (-af).toFixed(1) + 'px,0)';
       if (vlekken[1]) vlekken[1].style.transform = 'translate3d(0,' + (-af * 0.7).toFixed(1) + 'px,0)';
+      if (vlekken[2]) { // de derde vlek komt pas onderaan de pagina in beeld
+        var rest = Math.max(1, document.documentElement.scrollHeight - window.innerHeight), vz = Math.min(1, window.scrollY / rest);
+        vlekken[2].style.transform = 'translate3d(0,' + (-(af * 0.7 + vz * vz * window.innerHeight * 0.5)).toFixed(1) + 'px,0)';
+      }
     };
     window.addEventListener('scroll', function () { if (!wacht) { wacht = true; requestAnimationFrame(beweeg); } }, { passive: true });
     beweeg();
@@ -215,7 +219,7 @@
         melding('Bedankt! Je bericht is binnen. Je hoort binnen twee werkdagen van ons.', 'goed');
       } else { throw new Error(res.message); }
     }).catch(function () {
-      melding('Versturen lukte niet. Mail je vraag dan direct naar info@8mmfilmproductions.nl, dan kom ik er zo snel mogelijk op terug.', 'fout');
+      melding('Versturen lukte niet. Mail je vraag dan direct naar info@8mmfilmproductions.nl, dan komen we er zo snel mogelijk op terug.', 'fout');
     }).finally(function () {
       knop.disabled = false; knop.textContent = oud;
     });

@@ -11,7 +11,7 @@ en de sectie verschijnt vanzelf (zonder lijst blijft hij weg).
   "recensies": [{"citaat": "...", "naam": "...", "functie": "...", "bedrijf": "..."}]
   "faq": [{"vraag": "...", "antwoord": "..."}]
 """
-import html, json, shutil, sys, re, datetime
+import html, json, shutil, sys, re, datetime, hashlib
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -21,6 +21,10 @@ S = json.loads((ROOT / "site.json").read_text(encoding="utf-8"))
 CSS = (ROOT / "src/style.css").read_text(encoding="utf-8")
 JS = (ROOT / "src/main.js").read_text(encoding="utf-8")
 e = html.escape
+
+def versie(bestand):
+    """Korte code die verandert als de afbeelding verandert, zodat browsers de nieuwe foto meteen ophalen."""
+    return hashlib.md5((ROOT / "src/img" / bestand).read_bytes()).hexdigest()[:8]
 
 IMG = "img/" if PREVIEW else "/img/"   # live staan pagina's in mappen, dus beeldpaden beginnen met /
 
@@ -78,7 +82,7 @@ def pagina(naam, titel, beschrijving, inhoud, actief=None, lang="nl", extra_ld="
 {ld}
 </head>
 <body>
-<div class="achtergrond" aria-hidden="true"><div class="vlek vlek-a"></div><div class="vlek vlek-b"></div></div>
+<div class="achtergrond" aria-hidden="true"><div class="vlek vlek-a"></div><div class="vlek vlek-b"></div><div class="vlek vlek-c"></div></div>
 {balk}
 <header class="kop">
   <div class="wrap">
@@ -328,6 +332,18 @@ def recensies():
   </div>
 </section>"""
 
+def soort_pills():
+    """Soort video als klikbare pills (echte radio-knoppen), in de kleuren van de categorieen."""
+    opties = [("Bedrijfsfilm", "bedrijfsfilm"), ("Vacaturevideo", "vacaturevideo"), ("Evenement of aftermovie", "evenement"),
+              ("Projectvastlegging", "projectvastlegging"), ("Meercamera of livestream", "meercamera"), ("Animatie", "animatie"),
+              ("Iets anders", None)]
+    uit = ""
+    for naam, key in opties:
+        kleur = (categorie(key) or {}).get("kleur", "#8d8b87")
+        uit += (f'<label class="pill" style="--kleur:{kleur}"><input type="radio" name="soort" value="{e(naam)}">'
+                f'<span>{e(naam)}</span></label>')
+    return uit
+
 def contactblok(kop="h2"):
     preview_attr = " data-preview" if PREVIEW else ""
     action = "" if PREVIEW else ' action="https://api.web3forms.com/submit" method="POST"'
@@ -340,8 +356,8 @@ def contactblok(kop="h2"):
       <p class="lead">Een bedrijfsfilm, vacaturevideo, evenement of meercamera-opname? Vertel kort wat je in gedachten hebt. Je hoort binnen twee werkdagen van ons.</p>
     </div>
     <div class="oprichter">
-      <img src="{IMG}mark-portret.webp" alt="Mark Jansen" width="64" height="64" loading="lazy">
-      <div><b>Mark Jansen</b><span>Oprichter. Je spreekt direct met mij.</span></div>
+      <img src="{IMG}mark-portret.webp?v={versie("mark-portret.webp")}" alt="Mark Jansen" width="64" height="64" loading="lazy">
+      <div><b>Mark Jansen</b><span>Oprichter &middot; jouw vaste aanspreekpunt</span></div>
     </div>
     <dl class="gegevens">
       <div><dt class="label">Mail</dt><dd><a href="mailto:{S['email']}">{S['email']}</a></dd></div>
@@ -357,18 +373,18 @@ def contactblok(kop="h2"):
       <div class="veld"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required></div>
     </div>
     <div class="rij">
-      <div class="veld"><label for="soort">Soort video</label>
-        <select id="soort" name="soort" required>
-          <option value="">Kies een soort</option><option>Bedrijfsfilm</option><option>Vacaturevideo</option><option>Evenement of aftermovie</option>
-          <option>Projectvastlegging</option><option>Meercamera of livestream</option><option>Animatie</option><option>Iets anders</option>
-        </select></div>
-      <div class="veld"><label for="wanneer">Wanneer moet de video klaar zijn?</label><input id="wanneer" name="wanneer"></div>
+      <div class="veld"><label for="telefoon">Telefoon (optioneel)</label><input id="telefoon" name="telefoon" type="tel" autocomplete="tel"></div>
+      <div class="veld"><label for="klaar">Wanneer moet de video klaar zijn? (optioneel)</label><input id="klaar" name="klaar"></div>
     </div>
-    <div class="veld"><label for="telefoon">Telefoon (optioneel)</label><input id="telefoon" name="telefoon" type="tel" autocomplete="tel"></div>
+    <fieldset class="veld-groep">
+      <legend>Soort video</legend>
+      <div class="pills">{soort_pills()}</div>
+    </fieldset>
     <div class="veld"><label for="bericht">Waar gaat je video over?</label><textarea id="bericht" name="bericht" placeholder="Bijvoorbeeld: een bedrijfsfilm van 2 minuten voor onze website, opnames in maart." required></textarea></div>
     <p class="akkoord">We gebruiken je gegevens alleen om op je aanvraag te reageren. Zie de <a href="{link('privacy')}">privacyverklaring</a>.</p>
     <div class="form-voet">
-      <button class="knop" type="submit">Verstuur aanvraag {PIJL}</button>
+      <button class="knop" type="submit">Stuur je idee {PIJL}</button>
+      <ul class="beloftes"><li>Vrijblijvend</li><li>Reactie binnen 2 werkdagen</li><li>Direct contact met de maker</li></ul>
       <span class="vangnet">Of mail direct naar <a href="mailto:{S['email']}?subject=Aanvraag%20video">{S['email']}</a></span>
     </div>
     <p id="formstatus" class="status" role="status" hidden></p>
@@ -452,7 +468,13 @@ def videos():
 def contact():
     return pagina("contact", "Contact en offerte | 8MM Film Productions",
         "Een video laten maken in Harderwijk of omgeving? Vertel wat je wilt maken, dan nemen we snel contact met je op voor een gesprek en offerte.",
-        f'<section><div class="wrap">{contactblok("h1")}</div></section>' + faq(), actief="contact")
+        f'''<section class="contact-sectie contact-pagina"><div class="wrap">{contactblok("h1")}
+    <ol class="case-stappen volgende" aria-label="Zo gaat het verder" style="--n:3">
+      <li><b>Jij vertelt</b><span>Vul het formulier in met kort wat je wilt maken en waar de video te zien komt.</span></li>
+      <li><b>Wij reageren</b><span>Je hoort binnen twee werkdagen van ons.</span></li>
+      <li><b>Kennismaking</b><span>We bespreken je doel en doelgroep, en je krijgt een concreet plan met een heldere offerte.</span></li>
+    </ol>
+  </div></section>''' + faq(), actief="contact")
 
 TAAL = lambda: '<div class="taal"><a href="#nl">Nederlands</a><a href="#en">English</a></div>'
 SCOPES_NL = ('<ul><li><b>Gmail (alleen lezen)</b>: e-mails en bijlagen zoeken en lezen. De app kan geen e-mails versturen, concepten maken, labelen, wijzigen of verwijderen.</li>'
