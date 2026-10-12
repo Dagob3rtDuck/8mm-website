@@ -113,24 +113,31 @@ section { padding-block: clamp(4.5rem, 10vw, 8rem); }
 .case-tab .cat { margin: 0; }
 .case-tab:hover { color: var(--wit); border-color: #3a3a3a; }
 .case-tab[aria-selected="true"] { color: var(--wit); background: var(--vlak); border-color: #3a3a3a; box-shadow: inset 0 2px 0 var(--kleur, var(--lamp)); }
-.case-paneel { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
 .case-paneel + .case-paneel { margin-top: clamp(3rem, 6vw, 5rem); padding-top: clamp(3rem, 6vw, 5rem); border-top: 1px solid var(--lijn); }
-.js-cases .case-paneel + .case-paneel { margin-top: 0; padding-top: 0; border-top: 0; }
-.js-cases .case-paneel[hidden] { display: none; }
-@media (max-width: 56rem) { .case-paneel { grid-template-columns: 1fr; gap: 1.8rem; } }
+/* met JavaScript liggen alle projecten op elkaar: het kader is zo altijd net zo hoog als het hoogste project, dus de pagina verspringt niet bij wisselen */
+.js-cases .cases-panelen { display: grid; }
+.js-cases .case-paneel { grid-area: 1 / 1; margin: 0; padding: 0; border: 0; }
+.js-cases .case-paneel[hidden] { display: block; visibility: hidden; opacity: 0; pointer-events: none; }
+.case-boven { display: grid; grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
+@media (max-width: 56.25rem) { .case-boven { grid-template-columns: 1fr; gap: 1.5rem; } }
 .case-video .speel { opacity: 1; transform: none; }
 .case-video:hover .speel { background: var(--lamp); }
-.case-tekst { display: grid; gap: 1.5rem; min-width: 0; }
+.case-tekst { display: grid; gap: 1.2rem; min-width: 0; }
 .case-titel { font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.12; letter-spacing: -.02em; }
 .case-intro { color: #c9c6c0; max-width: 38rem; }
-.case-blok { display: grid; gap: .9rem; }
-.case-stappen { list-style: none; counter-reset: stap; margin: 0; padding: 0; display: grid; gap: 1.1rem; }
-.case-stappen li { counter-increment: stap; display: grid; grid-template-columns: 2rem minmax(0, 1fr); column-gap: .6rem; color: #c9c6c0; font-size: .95rem; }
-.case-stappen li::before { content: counter(stap, decimal-leading-zero); grid-column: 1; grid-row: 1 / span 2; font: 500 .72rem/1.9 var(--f-mono); letter-spacing: .06em; color: var(--lamp); }
-.case-stappen b { grid-column: 2; color: var(--wit); font-weight: 600; }
-.case-stappen span { grid-column: 2; }
 .case-ingezet { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
 .case-ingezet li { font: 500 .66rem/1.3 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--grijs); border: 1px solid var(--lijn); padding: .4rem .65rem; border-radius: 999px; }
+.case-stappen { list-style: none; counter-reset: stap; margin: clamp(1.8rem, 3vw, 2.5rem) 0 0; padding: clamp(1.2rem, 2vw, 1.6rem) 0 0; border-top: 1px solid var(--lijn); display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); gap: 1.6rem 2rem; }
+.case-stappen li { counter-increment: stap; display: grid; align-content: start; gap: .4rem; min-width: 0; color: #c9c6c0; font-size: .92rem; }
+.case-stappen li::before { content: counter(stap, decimal-leading-zero); font: 500 .72rem/1.4 var(--f-mono); letter-spacing: .06em; color: var(--lamp); }
+.case-stappen b { color: var(--wit); font-weight: 600; font-size: 1rem; }
+@media (max-width: 75rem) { .case-stappen { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 56.25rem) {
+  .case-stappen { grid-template-columns: 1fr; gap: 1.1rem; }
+  .case-stappen li { grid-template-columns: 2rem minmax(0, 1fr); column-gap: .6rem; row-gap: .2rem; font-size: .95rem; }
+  .case-stappen li::before { grid-column: 1; grid-row: 1 / span 2; line-height: 1.9; }
+  .case-stappen b, .case-stappen span { grid-column: 2; }
+}
 @keyframes case-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .case-paneel.wissel { animation: case-in .45s var(--ease, ease) both; }
 @media (prefers-reduced-motion: reduce) { .case-paneel.wissel { animation: none !important; } }

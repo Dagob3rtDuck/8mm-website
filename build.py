@@ -271,15 +271,18 @@ def cases():
             f'<li><b>{e(s["titel"])}</b><span>{e(s.get("tekst", ""))}</span></li>'
             for s in c.get("stappen", []) if s.get("titel"))
         chips = "".join(f"<li>{e(x)}</li>" for x in c.get("ingezet", []) if x)
+        aantal = max(1, sum(1 for s in c.get("stappen", []) if s.get("titel")))
         titel = c.get("titel") or v["titel"]
         panelen += f"""<div class="case-paneel" id="case-{sl}" aria-labelledby="tab-{sl}">
-  {case_beeld(v, c.get("foto"), titel)}
-  <div class="case-tekst">
-    <h3 class="case-titel">{e(titel)}</h3>
-    {f'<p class="case-intro">{e(c["intro"])}</p>' if c.get("intro") else ""}
-    {f'<div class="case-blok"><span class="label">Zo pakten we het aan</span><ol class="case-stappen">{stappen}</ol></div>' if stappen else ""}
-    {f'<div class="case-blok"><span class="label">Ingezet</span><ul class="case-ingezet">{chips}</ul></div>' if chips else ""}
+  <div class="case-boven">
+    {case_beeld(v, c.get("foto"), titel)}
+    <div class="case-tekst">
+      <h3 class="case-titel">{e(titel)}</h3>
+      {f'<p class="case-intro">{e(c["intro"])}</p>' if c.get("intro") else ""}
+      {f'<ul class="case-ingezet" aria-label="Ingezet">{chips}</ul>' if chips else ""}
+    </div>
   </div>
+  {f'<ol class="case-stappen" aria-label="Zo pakten we het aan" style="--n:{aantal}">{stappen}</ol>' if stappen else ""}
 </div>
 """
     return f"""<section class="cases-sectie" id="cases">
@@ -287,7 +290,7 @@ def cases():
     <div class="sectie-kop"><div><span class="label">Uitgelicht</span><h2>Zo pakken we het aan</h2></div></div>
     <div class="cases">
       <div class="case-tabs" role="tablist" aria-label="Uitgelichte projecten" hidden>{tabs}</div>
-      {panelen}
+      <div class="cases-panelen">{panelen}</div>
     </div>
   </div>
 </section>"""
