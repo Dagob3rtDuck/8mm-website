@@ -203,17 +203,12 @@ def werkmethode():
       <p>8MM Film Productions werd in 2017 opgericht door Mark Jansen. We maken bedrijfsfilms, vacaturevideo's, aftermovies, projectvastleggingen en meercamera-opnames voor bedrijven, organisaties en evenementen. We denken mee vanaf het eerste idee en bewaken de kwaliteit tot de laatste export.</p>
     </div>
     <div class="editor tijdlijn">
-      <div class="monitor">
-        <img src="{IMG}mark.webp" alt="Mark Jansen aan het filmen met een camera op gimbal" loading="lazy" width="1000" height="771">
-        <span class="mon-label" aria-hidden="true">PROGRAM &middot; 8MM</span>
-        <span class="mon-tc" data-tc aria-hidden="true">00:00:00:00</span>
-      </div>
       <div class="editor-balk"><h3>Onze werkmethode</h3><p>Van eerste gesprek tot oplevering, in vier stappen.</p></div>
       <div class="spoor">
         <div class="liniaal" aria-hidden="true"><span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span></div>
         <ol class="stappen">{stappen}</ol>
+        <div class="kopbaan" aria-hidden="true"><div class="afspeelkop"></div></div>
       </div>
-      <div class="kopbaan" aria-hidden="true"><div class="afspeelkop"></div></div>
     </div>
   </div>
 </section>"""
@@ -342,6 +337,10 @@ def contactblok(kop="h2"):
       <span class="label">Contact</span>
       <{kop}>Vertel wat je wilt maken.</{kop}>
       <p class="lead">Een bedrijfsfilm, vacaturevideo, evenement of meercamera-opname? Vertel kort wat je in gedachten hebt. Je hoort binnen twee werkdagen van ons.</p>
+    </div>
+    <div class="oprichter">
+      <img src="{IMG}mark-portret.webp" alt="Mark Jansen" width="64" height="64" loading="lazy">
+      <div><b>Mark Jansen</b><span>Oprichter. Je spreekt direct met mij.</span></div>
     </div>
     <dl class="gegevens">
       <div><dt class="label">Mail</dt><dd><a href="mailto:{S['email']}">{S['email']}</a></dd></div>

@@ -31,38 +31,13 @@
     });
   }
 
-  // Werkmethode-editor: de afspeelkop loopt eenmalig over monitor en tijdlijn, de tijdcode telt mee.
-  // De liniaal loopt van 00:00 tot 00:30, de tijdcode heeft de vorm uu:mm:ss:ff (25 beelden per seconde).
+  // Werkmethode-tijdlijn: de afspeelkop loopt eenmalig over liniaal en clips zodra de tijdlijn in beeld komt
   var tl = document.querySelector('.tijdlijn');
-  var tcEl = document.querySelector('[data-tc]');
-  var kopEl = document.querySelector('.afspeelkop');
-  var baanEl = document.querySelector('.kopbaan');
-  var TOTAAL = 30;
-  function zetTc(sec) {
-    if (!tcEl) return;
-    var f = Math.round(sec * 25), s = Math.floor(f / 25), fr = f % 25;
-    tcEl.textContent = '00:00:' + (s < 10 ? '0' : '') + s + ':' + (fr < 10 ? '0' : '') + fr;
-  }
-  if (tl && rustig) zetTc(TOTAAL);
-  function telMee() {
-    var t0 = null, duur = 4200, vertraging = 200;
-    function stap(nu) {
-      if (t0 === null) t0 = nu;
-      var tijd = nu - t0 - vertraging;
-      var p;
-      if (tijd < 0) p = 0;
-      else if (kopEl && kopEl.offsetParent && baanEl && baanEl.clientWidth) p = kopEl.offsetLeft / baanEl.clientWidth; // volg de echte afspeelkop
-      else { var x = Math.min(1, tijd / duur); p = x * x * (3 - 2 * x); } // mobiel: geen afspeelkop, zelfde soort versnelling
-      zetTc(Math.min(1, p) * TOTAAL);
-      if (tijd < duur + 100) requestAnimationFrame(stap); else zetTc(TOTAAL);
-    }
-    requestAnimationFrame(stap);
-  }
   if (tl && !rustig && 'IntersectionObserver' in window) {
     document.documentElement.classList.add('js-tijdlijn');
     var tio = new IntersectionObserver(function (items) {
-      if (items[0].isIntersecting) { tl.classList.add('speelt'); telMee(); tio.disconnect(); }
-    }, { threshold: 0.25 });
+      if (items[0].isIntersecting) { tl.classList.add('speelt'); tio.disconnect(); }
+    }, { threshold: 0.3 });
     tio.observe(tl);
   }
 
