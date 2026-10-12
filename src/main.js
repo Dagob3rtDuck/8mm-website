@@ -11,7 +11,7 @@
   // Zachte onthulling bij scrollen. Alleen voor wat bij het laden nog onder de vouw staat,
   // zodat de pagina zonder JavaScript of animatie altijd compleet zichtbaar is.
   if (!rustig && 'IntersectionObserver' in window) {
-    var doelen = document.querySelectorAll('.sectie-kop, .tegel, .over-tekst, .over img, .case-tabs, .diensten li, .faq, .recensie, .logos div, .contact-links, form, .doc h2, .app-kaart');
+    var doelen = document.querySelectorAll('.sectie-kop, .tegel, .over-kop, .case-tabs, .diensten li, .faq, .recensie, .logos div, .contact-links, form, .doc h2, .app-kaart');
     var io = new IntersectionObserver(function (items) {
       items.forEach(function (it) {
         if (!it.isIntersecting) return;
@@ -31,13 +31,38 @@
     });
   }
 
-  // Werkmethode-tijdlijn: afspeelkop start als de tijdlijn in beeld komt
+  // Werkmethode-editor: de afspeelkop loopt eenmalig over monitor en tijdlijn, de tijdcode telt mee.
+  // De liniaal loopt van 00:00 tot 00:30, de tijdcode heeft de vorm uu:mm:ss:ff (25 beelden per seconde).
   var tl = document.querySelector('.tijdlijn');
+  var tcEl = document.querySelector('[data-tc]');
+  var kopEl = document.querySelector('.afspeelkop');
+  var baanEl = document.querySelector('.kopbaan');
+  var TOTAAL = 30;
+  function zetTc(sec) {
+    if (!tcEl) return;
+    var f = Math.round(sec * 25), s = Math.floor(f / 25), fr = f % 25;
+    tcEl.textContent = '00:00:' + (s < 10 ? '0' : '') + s + ':' + (fr < 10 ? '0' : '') + fr;
+  }
+  if (tl && rustig) zetTc(TOTAAL);
+  function telMee() {
+    var t0 = null, duur = 4200, vertraging = 200;
+    function stap(nu) {
+      if (t0 === null) t0 = nu;
+      var tijd = nu - t0 - vertraging;
+      var p;
+      if (tijd < 0) p = 0;
+      else if (kopEl && kopEl.offsetParent && baanEl && baanEl.clientWidth) p = kopEl.offsetLeft / baanEl.clientWidth; // volg de echte afspeelkop
+      else { var x = Math.min(1, tijd / duur); p = x * x * (3 - 2 * x); } // mobiel: geen afspeelkop, zelfde soort versnelling
+      zetTc(Math.min(1, p) * TOTAAL);
+      if (tijd < duur + 100) requestAnimationFrame(stap); else zetTc(TOTAAL);
+    }
+    requestAnimationFrame(stap);
+  }
   if (tl && !rustig && 'IntersectionObserver' in window) {
     document.documentElement.classList.add('js-tijdlijn');
     var tio = new IntersectionObserver(function (items) {
-      if (items[0].isIntersecting) { tl.classList.add('speelt'); tio.disconnect(); }
-    }, { threshold: 0.35 });
+      if (items[0].isIntersecting) { tl.classList.add('speelt'); telMee(); tio.disconnect(); }
+    }, { threshold: 0.25 });
     tio.observe(tl);
   }
 
@@ -145,23 +170,6 @@
     }
   }
 
-  // Mailadres kopiëren
-  document.querySelectorAll('[data-kopieer]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var t = b.getAttribute('data-kopieer');
-      var klaar = function () { b.textContent = 'Gekopieerd'; setTimeout(function () { b.textContent = 'Kopieer'; }, 2000); };
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(t).then(klaar, function () { selecteer(t); });
-      } else { selecteer(t); }
-    });
-  });
-  function selecteer(t) {
-    var el = document.querySelector('[data-mail-tekst]');
-    if (!el) return;
-    var r = document.createRange(); r.selectNodeContents(el);
-    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-  }
-
   // Contactformulier via Web3Forms. Zonder JavaScript post het formulier gewoon naar Web3Forms.
   var form = document.getElementById('contactformulier');
   if (!form) return;
@@ -197,7 +205,7 @@
     }).then(function (r) { return r.json(); }).then(function (res) {
       if (res.success) {
         form.reset();
-        melding('Bedankt! Je bericht is binnen. Ik neem zo snel mogelijk contact met je op.', 'goed');
+        melding('Bedankt! Je bericht is binnen. Je hoort binnen twee werkdagen van ons.', 'goed');
       } else { throw new Error(res.message); }
     }).catch(function () {
       melding('Versturen lukte niet. Mail je vraag dan direct naar info@8mmfilmproductions.nl, dan kom ik er zo snel mogelijk op terug.', 'fout');

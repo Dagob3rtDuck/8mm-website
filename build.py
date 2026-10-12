@@ -193,24 +193,27 @@ def werkmethode():
         f'<li style="--i:{i}">'
         f'<div class="clip" style="--foto:url({IMG}{fotos[i % 4]}.webp)"><span>V1 &middot; {e(s["titel"])}</span></div>'
         f'<div class="audio" aria-hidden="true"></div>'
-        f'<h3>{e(s["titel"])}</h3><p>{e(s["tekst"])}</p>'
+        f'<h4>{e(s["titel"])}</h4><p>{e(s["tekst"])}</p>'
         f'<span class="levert">{e(s.get("levert", ""))}</span></li>'
         for i, s in enumerate(S["werkmethode"]))
     return f"""<section class="methode" id="werkmethode">
   <div class="wrap">
-    <div class="over">
-      <div class="over-tekst">
-        <span class="label">Over 8MM</span>
-        <h2>Onze werk&shy;methode</h2>
-        <p>8MM Film Productions werd in 2017 opgericht door Mark Jansen. Vanuit Harderwijk maken we bedrijfsfilms, vacaturevideo's, aftermovies, projectvastleggingen en livestreams voor bedrijven, organisaties en evenementen.</p>
-        <p>We denken mee vanaf het eerste idee en bewaken de kwaliteit tot de laatste export. Jij vertelt wat je wilt laten zien, wij zorgen dat het verhaal staat.</p>
-      </div>
-      <img src="{IMG}mark.webp" alt="Mark Jansen aan het filmen met een camera op gimbal" loading="lazy" width="1000" height="771">
+    <div class="over-kop">
+      <div><span class="label">Over 8MM</span><h2>Sinds 2017 vanuit Harderwijk</h2></div>
+      <p>8MM Film Productions werd in 2017 opgericht door Mark Jansen. We maken bedrijfsfilms, vacaturevideo's, aftermovies, projectvastleggingen en meercamera-opnames voor bedrijven, organisaties en evenementen. We denken mee vanaf het eerste idee en bewaken de kwaliteit tot de laatste export.</p>
     </div>
-    <div class="tijdlijn">
-      <div class="liniaal" aria-hidden="true"><span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span></div>
-      <ol class="stappen">{stappen}</ol>
-      <div class="afspeelkop" aria-hidden="true"></div>
+    <div class="editor tijdlijn">
+      <div class="monitor">
+        <img src="{IMG}mark.webp" alt="Mark Jansen aan het filmen met een camera op gimbal" loading="lazy" width="1000" height="771">
+        <span class="mon-label" aria-hidden="true">PROGRAM &middot; 8MM</span>
+        <span class="mon-tc" data-tc aria-hidden="true">00:00:00:00</span>
+      </div>
+      <div class="editor-balk"><h3>Onze werkmethode</h3><p>Van eerste gesprek tot oplevering, in vier stappen.</p></div>
+      <div class="spoor">
+        <div class="liniaal" aria-hidden="true"><span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span></div>
+        <ol class="stappen">{stappen}</ol>
+      </div>
+      <div class="kopbaan" aria-hidden="true"><div class="afspeelkop"></div></div>
     </div>
   </div>
 </section>"""
@@ -335,13 +338,12 @@ def contactblok(kop="h2"):
     <div class="kop-blok">
       <span class="label">Contact</span>
       <{kop}>Vertel wat je wilt maken.</{kop}>
-      <p class="lead">Een bedrijfsfilm, vacaturevideo, aftermovie of livestream? Vertel kort wat je in gedachten hebt, dan nemen we snel contact met je op.</p>
+      <p class="lead">Een bedrijfsfilm, vacaturevideo, evenement of meercamera-opname? Vertel kort wat je in gedachten hebt. Je hoort binnen twee werkdagen van ons.</p>
     </div>
     <dl class="gegevens">
-      <div><dt class="label">Mail</dt><dd><a href="mailto:{S['email']}" data-mail-tekst>{S['email']}</a><button type="button" class="kopieer" data-kopieer="{S['email']}">Kopieer</button></dd></div>
+      <div><dt class="label">Mail</dt><dd><a href="mailto:{S['email']}">{S['email']}</a></dd></div>
       <div><dt class="label">Instagram</dt><dd><a href="https://www.instagram.com/{S['instagram']}/" rel="noopener" target="_blank">@{S['instagram']}</a></dd></div>
       <div><dt class="label">Adres</dt><dd>{e(S['adres'])}<br>{e(S['postcode_plaats'])}</dd></div>
-      <div><dt class="label">KVK</dt><dd>{S['kvk']}</dd></div>
     </dl>
   </div>
   <form id="contactformulier"{action}{preview_attr}>
@@ -352,14 +354,15 @@ def contactblok(kop="h2"):
       <div class="veld"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required></div>
     </div>
     <div class="rij">
-      <div class="veld"><label for="telefoon">Telefoon (optioneel)</label><input id="telefoon" name="telefoon" type="tel" autocomplete="tel"></div>
       <div class="veld"><label for="soort">Soort video</label>
-        <select id="soort" name="soort">
-          <option>Bedrijfsfilm</option><option>Vacaturevideo</option><option>Aftermovie of evenement</option>
-          <option>Livestream</option><option>Iets anders</option>
+        <select id="soort" name="soort" required>
+          <option value="">Kies een soort</option><option>Bedrijfsfilm</option><option>Vacaturevideo</option><option>Evenement of aftermovie</option>
+          <option>Projectvastlegging</option><option>Meercamera of livestream</option><option>Animatie</option><option>Iets anders</option>
         </select></div>
+      <div class="veld"><label for="wanneer">Wanneer moet de video klaar zijn?</label><input id="wanneer" name="wanneer"></div>
     </div>
-    <div class="veld"><label for="bericht">Waar gaat je video over?</label><textarea id="bericht" name="bericht" required></textarea></div>
+    <div class="veld"><label for="telefoon">Telefoon (optioneel)</label><input id="telefoon" name="telefoon" type="tel" autocomplete="tel"></div>
+    <div class="veld"><label for="bericht">Waar gaat je video over?</label><textarea id="bericht" name="bericht" placeholder="Bijvoorbeeld: een bedrijfsfilm van 2 minuten voor onze website, opnames in maart." required></textarea></div>
     <p class="akkoord">We gebruiken je gegevens alleen om op je aanvraag te reageren. Zie de <a href="{link('privacy')}">privacyverklaring</a>.</p>
     <div class="form-voet">
       <button class="knop" type="submit">Verstuur aanvraag {PIJL}</button>
