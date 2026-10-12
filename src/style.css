@@ -423,3 +423,11 @@ a.cat:hover { background: color-mix(in srgb, var(--kleur) 22%, transparent); bor
 @keyframes tegel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .grid.gefilterd .tegel:not([hidden]) { animation: tegel-in .45s var(--ease, ease) both; }
 @media (prefers-reduced-motion: reduce) { .grid.gefilterd .tegel { animation: none !important; } }
+
+/* achtergrond met diepte: vaste laag achter alle inhoud (lichtvlekken, stilstaande korrel, vignet) */
+.achtergrond { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.vlek { position: absolute; border-radius: 50%; will-change: transform; }
+.vlek-a { width: 90vmax; height: 90vmax; left: -35vmax; top: -40vmax; background: radial-gradient(closest-side, rgba(229,165,75,.075), rgba(229,165,75,.03) 55%, transparent); }
+.vlek-b { width: 80vmax; height: 80vmax; right: -40vmax; top: 18vh; background: radial-gradient(closest-side, rgba(125,155,195,.055), rgba(125,155,195,.02) 55%, transparent); }
+.achtergrond::before { content: ""; position: absolute; inset: 0; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.achtergrond::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.32) 100%); }

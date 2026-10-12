@@ -1,6 +1,21 @@
 (function () {
   var rustig = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Achtergrond: de lichtvlekken schuiven langzamer mee dan de pagina (begint op ca. 18% van de scrollsnelheid
+  // en loopt zacht af naar maximaal 40vh). Uit bij verminderde beweging en op smalle schermen.
+  var vlekken = document.querySelectorAll('.vlek');
+  if (vlekken.length && !rustig && window.matchMedia && window.matchMedia('(min-width: 640px)').matches) {
+    var wacht = false;
+    var beweeg = function () {
+      wacht = false;
+      var max = window.innerHeight * 0.4, x = window.scrollY * 0.18, af = max * x / (max + x);
+      vlekken[0].style.transform = 'translate3d(0,' + (-af).toFixed(1) + 'px,0)';
+      if (vlekken[1]) vlekken[1].style.transform = 'translate3d(0,' + (-af * 0.7).toFixed(1) + 'px,0)';
+    };
+    window.addEventListener('scroll', function () { if (!wacht) { wacht = true; requestAnimationFrame(beweeg); } }, { passive: true });
+    beweeg();
+  }
+
   // Header iets donkerder zodra je scrolt
   var kop = document.querySelector('.kop');
   if (kop) {

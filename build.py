@@ -78,6 +78,7 @@ def pagina(naam, titel, beschrijving, inhoud, actief=None, lang="nl", extra_ld="
 {ld}
 </head>
 <body>
+<div class="achtergrond" aria-hidden="true"><div class="vlek vlek-a"></div><div class="vlek vlek-b"></div></div>
 {balk}
 <header class="kop">
   <div class="wrap">
