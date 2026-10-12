@@ -586,10 +586,10 @@ def contact():
 
 TAAL = lambda: '<div class="taal"><a href="#nl">Nederlands</a><a href="#en">English</a></div>'
 SCOPES_NL = ('<ul><li><b>Gmail (alleen lezen)</b>: e-mails en bijlagen zoeken en lezen. De app kan geen e-mails versturen, concepten maken, labelen, wijzigen of verwijderen.</li>'
-             '<li><b>Google Agenda</b>: op Marks uitdrukkelijke verzoek een nieuwe afspraak aanmaken en daarbij eventueel uitnodigingen versturen aan gasten die Mark zelf opgeeft. De app wijzigt of verwijdert geen bestaande afspraken.</li></ul>'
+             '<li><b>Google Agenda</b>: de applicatie mag afspraken lezen en afspraken aanmaken in de agenda van de eigenaar. Een afspraak zonder gasten wordt direct aangemaakt. Een afspraak met gasten wordt pas aangemaakt en verstuurd nadat de eigenaar de inhoud en de e-mailadressen van de gasten heeft bevestigd. De applicatie past alleen afspraken aan of verwijdert alleen afspraken die de applicatie zelf heeft aangemaakt, bijvoorbeeld een reisblok dat na een verschoven klus niet meer klopt, of een afspraak die de eigenaar via een commando ongedaan maakt. Afspraken die de applicatie niet zelf heeft aangemaakt worden nooit aangepast of verwijderd. Agendagegevens worden uitsluitend gebruikt om de eigenaar te helpen met planning en worden niet gedeeld met derden, niet verkocht en niet gebruikt voor reclame of het trainen van modellen.</li></ul>'
              '<p>De app vraagt alleen toegang tot deze onderdelen. Komt er later iets bij, dan passen we deze pagina eerst aan.</p>')
 SCOPES_EN = ('<ul><li><b>Gmail (read-only)</b>: search and read email and attachments. The app cannot send, draft, label, modify or delete email.</li>'
-             '<li><b>Google Calendar</b>: at Mark\'s explicit request, create a new event and optionally send invitations to guests Mark specifies himself. The app does not modify or delete existing events.</li></ul>'
+             '<li><b>Google Calendar</b>: the application may read events and create events in the owner\'s calendar. An event without guests is created directly. An event with guests is only created and sent after the owner has confirmed its content and the guests\' email addresses. The application only modifies or deletes events that it created itself, for example a travel block that is no longer accurate after a job was rescheduled, or an event the owner undoes with a command. Events the application did not create are never modified or deleted. Calendar data is used only to help the owner with planning, and is not shared with third parties, sold, used for advertising or used to train models.</li></ul>'
              '<p>The app requests access to these services only. If this changes, this page will be updated first.</p>')
 BIJGEWERKT = "12 oktober 2026"
 UPDATED = "October 12, 2026"
@@ -608,7 +608,7 @@ def agent():
     <div class="app-kaart">
       <h3>Wat de app met Google doet</h3>
       <div>{SCOPES_NL}</div>
-      <p>Een afspraak wordt pas aangemaakt nadat Mark die heeft bevestigd. Google-gegevens worden niet verkocht, niet gebruikt voor reclame en niet gebruikt om AI-modellen te trainen.</p>
+      <p>Google-gegevens worden niet verkocht, niet gebruikt voor reclame en niet gebruikt om AI-modellen te trainen.</p>
     </div>
     <p>Lees de <a href="{link('privacy')}#mark-agent">privacyverklaring</a> en de <a href="{link('terms')}">gebruiksvoorwaarden</a>. Vragen? Mail <a href="mailto:{S['email']}">{S['email']}</a>.</p>
   </section>
@@ -620,7 +620,7 @@ def agent():
     <div class="app-kaart">
       <h3>What the app does with Google</h3>
       <div>{SCOPES_EN}</div>
-      <p>An event is only created after Mark confirms it. Google user data is not sold, not used for advertising and not used to train AI models.</p>
+      <p>Google user data is not sold, not used for advertising and not used to train AI models.</p>
     </div>
     <p>Read the <a href="{link('privacy')}#mark-agent-en">privacy policy</a> and the <a href="{link('terms')}#en">terms of service</a>. Questions? Email <a href="mailto:{S['email']}">{S['email']}</a>.</p>
   </section>
@@ -652,7 +652,7 @@ def privacy():
     <h3>Welke Google-gegevens</h3>
     <div>{SCOPES_NL}</div>
     <h3>Waarvoor</h3>
-    <p>Alleen om Mark te helpen met zijn mail en agenda, op zijn eigen verzoek. Een afspraak wordt pas aangemaakt nadat Mark die heeft bevestigd. Van gasten die Mark uitnodigt, wordt alleen het e-mailadres gebruikt om de uitnodiging te versturen.</p>
+    <p>Alleen om Mark te helpen met zijn mail en agenda, op zijn eigen verzoek. Een afspraak met gasten wordt pas aangemaakt en verstuurd nadat Mark de inhoud en de e-mailadressen van de gasten heeft bevestigd. Van gasten die Mark uitnodigt, wordt alleen het e-mailadres gebruikt om de uitnodiging te versturen.</p>
     <h3>Waar de gegevens heen gaan</h3>
     <ul>
       <li>De app draait op Marks eigen computer. De inloggegevens voor Google (tokens) staan alleen daar.</li>
@@ -679,7 +679,7 @@ def privacy():
     <h3>Google data accessed</h3>
     <div>{SCOPES_EN}</div>
     <h3>How the data is used</h3>
-    <p>Google user data is used only to help Mark with his email and calendar, at his request. An event is only created after Mark confirms it. For guests Mark invites, only their email address is used to send the invitation.</p>
+    <p>Google user data is used only to help Mark with his email and calendar, at his request. An event with guests is only created and sent after Mark confirms its content and the guests' email addresses. For guests Mark invites, only their email address is used to send the invitation.</p>
     <h3>Where the data goes</h3>
     <ul>
       <li>The app runs on Mark's own computer. The Google access tokens are stored only there.</li>
@@ -706,7 +706,7 @@ def terms():
     <p>Deze voorwaarden gelden voor de app Mark Agent, gemaakt door Mark Jansen (8MM Film Productions, KVK {S['kvk']}).</p>
     <ul>
       <li>Mark Agent is een persoonlijke app, alleen voor eigen gebruik door Mark Jansen. De app wordt niet aangeboden aan anderen.</li>
-      <li>De app gebruikt Marks eigen Google-accounts: Gmail alleen om te lezen, en Google Agenda om na Marks bevestiging nieuwe afspraken aan te maken.</li>
+      <li>De app gebruikt Marks eigen Google-accounts: Gmail alleen om te lezen, en Google Agenda om afspraken te lezen en aan te maken (afspraken met gasten pas na Marks bevestiging).</li>
       <li>Toegang tot Google kan altijd worden ingetrokken via de Google-accountinstellingen.</li>
       <li>De app wordt geleverd zoals hij is, zonder garanties. 8MM Film Productions is niet aansprakelijk voor schade door het gebruik van de app, behalve als de wet dat anders bepaalt.</li>
       <li>Hoe de app met gegevens omgaat, lees je in de <a href="{link('privacy')}#mark-agent">privacyverklaring</a>.</li>
@@ -721,7 +721,7 @@ def terms():
     <p>These terms apply to the Mark Agent app, made by Mark Jansen (8MM Film Productions, Chamber of Commerce no. {S['kvk']}, the Netherlands).</p>
     <ul>
       <li>Mark Agent is a personal app for use by Mark Jansen only. It is not offered to anyone else.</li>
-      <li>The app uses Mark's own Google accounts: Gmail read-only, and Google Calendar to create new events after Mark confirms them.</li>
+      <li>The app uses Mark's own Google accounts: Gmail read-only, and Google Calendar to read and create events (events with guests only after Mark confirms them).</li>
       <li>Access to Google can be revoked at any time in the Google account settings.</li>
       <li>The app is provided as is, without warranties. 8MM Film Productions is not liable for damage resulting from its use, except where the law requires otherwise.</li>
       <li>How the app handles data is described in the <a href="{link('privacy')}#mark-agent-en">privacy policy</a>.</li>
